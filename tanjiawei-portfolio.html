@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tan Jia Wei — Event Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0a0a0a;
+    --off-white: #f0ece4;
+    --muted: #888;
+    --accent: #c9a96e;
+    --border: rgba(255,255,255,0.1);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--off-white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.5rem 4rem;
+    background: linear-gradient(to bottom, rgba(10,10,10,0.95), transparent);
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    color: var(--off-white);
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--off-white); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 0 4rem;
+    gap: 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 70% 50%, rgba(201,169,110,0.06), transparent 70%);
+    pointer-events: none;
+  }
+  .hero-text { padding-top: 6rem; }
+  .hero-eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(4rem, 8vw, 7rem);
+    font-weight: 300;
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+    margin-bottom: 2rem;
+  }
+  .hero-title em { font-style: italic; color: var(--accent); }
+  .hero-sub {
+    font-size: 0.85rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+    max-width: 360px;
+  }
+  .hero-pills { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 3rem; }
+  .pill {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 0.5px solid var(--border);
+    padding: 0.45rem 1rem;
+    border-radius: 99px;
+    color: var(--muted);
+  }
+  .hero-cta {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--accent);
+    padding: 0.85rem 2rem;
+    border-radius: 99px;
+    text-decoration: none;
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .hero-cta:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  .hero-image-wrap {
+    display: flex; justify-content: center; align-items: center;
+    padding-top: 4rem;
+  }
+  .hero-oval {
+    width: 420px; height: 540px;
+    border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+    overflow: hidden;
+    border: 0.5px solid rgba(201,169,110,0.25);
+    position: relative;
+  }
+  .hero-oval img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center top;
+  }
+  .hero-oval-label {
+    position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+    background: rgba(10,10,10,0.7); color: var(--muted);
+    padding: 0.35rem 1rem; border-radius: 99px;
+    white-space: nowrap;
+    backdrop-filter: blur(4px);
+  }
+
+  /* DIVIDER */
+  .divider {
+    display: flex; align-items: center; gap: 1.5rem;
+    padding: 0 4rem; margin: 2rem 0;
+  }
+  .divider-line { flex: 1; height: 0.5px; background: var(--border); }
+  .divider-text {
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
+  }
+
+  /* SECTIONS */
+  section { padding: 6rem 4rem; }
+  .section-label {
+    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 300;
+    line-height: 1.05;
+    margin-bottom: 3rem;
+  }
+  .section-title em { font-style: italic; }
+
+  /* ABOUT */
+  .about-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: start;
+  }
+  .about-body {
+    font-size: 1rem; line-height: 1.9; color: rgba(240,236,228,0.75);
+  }
+  .about-body p + p { margin-top: 1.2rem; }
+  .about-stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+  }
+  .stat-card {
+    border-top: 0.5px solid var(--border); padding-top: 1.25rem;
+  }
+  .stat-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3rem; font-weight: 300;
+    color: var(--accent); line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+  .stat-label {
+    font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); line-height: 1.5;
+  }
+
+  /* EVENTS */
+  .events-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+  }
+  .event-card {
+    border: 0.5px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+    cursor: default;
+  }
+  .event-card:hover {
+    border-color: rgba(201,169,110,0.4);
+    transform: translateY(-4px);
+  }
+  .event-img {
+    width: 100%; aspect-ratio: 4/3;
+    background: #1a1a1a;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; position: relative;
+  }
+  .event-img-placeholder {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4rem; font-weight: 300; color: rgba(201,169,110,0.2);
+    font-style: italic;
+  }
+  .event-img-note {
+    position: absolute; bottom: 0.75rem; left: 0.75rem;
+    font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+  }
+  .event-body { padding: 1.25rem; }
+  .event-tag {
+    font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 0.5rem;
+  }
+  .event-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 400; line-height: 1.2;
+    margin-bottom: 0.5rem;
+  }
+  .event-desc {
+    font-size: 0.8rem; color: var(--muted); line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+  .event-meta {
+    display: flex; gap: 1.25rem;
+  }
+  .event-meta-item {
+    font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+  }
+  .event-meta-item span { color: var(--off-white); display: block; font-size: 0.8rem; margin-bottom: 1px; }
+
+  /* SKILLS */
+  .skills-section { background: #0e0e0e; }
+  .skills-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    border: 0.5px solid var(--border);
+  }
+  .skill-item {
+    padding: 2rem 1.5rem;
+    border-right: 0.5px solid var(--border);
+    transition: background 0.3s;
+  }
+  .skill-item:hover { background: rgba(255,255,255,0.02); }
+  .skill-item:last-child { border-right: none; }
+  .skill-icon {
+    font-size: 1.5rem; margin-bottom: 1rem;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border: 0.5px solid var(--border); border-radius: 4px;
+    font-style: normal;
+  }
+  .skill-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem; margin-bottom: 0.5rem;
+  }
+  .skill-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.7; }
+
+  /* ATHLETE */
+  .athlete-section {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center;
+  }
+  .athlete-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 300; font-style: italic;
+    line-height: 1.4;
+    color: var(--off-white);
+    border-left: 1px solid var(--accent);
+    padding-left: 2rem;
+    margin-bottom: 2rem;
+  }
+  .athlete-body { font-size: 0.9rem; color: var(--muted); line-height: 1.9; }
+  .athlete-tags { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem; }
+  .athlete-tag {
+    font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+    border: 0.5px solid rgba(201,169,110,0.35);
+    color: var(--accent);
+    padding: 0.4rem 0.9rem; border-radius: 99px;
+  }
+  .athlete-visual {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+  }
+  .athlete-box {
+    background: #111; border: 0.5px solid var(--border);
+    padding: 1.5rem; border-radius: 2px;
+    text-align: center;
+  }
+  .athlete-box-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.5rem; font-weight: 300; color: var(--accent);
+  }
+  .athlete-box-label {
+    font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); margin-top: 0.25rem;
+  }
+  .athlete-box.full { grid-column: 1 / -1; }
+
+  /* CONTACT */
+  .contact-section {
+    text-align: center; padding: 8rem 4rem;
+    position: relative; overflow: hidden;
+  }
+  .contact-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 50% 60% at 50% 50%, rgba(201,169,110,0.07), transparent 70%);
+  }
+  .contact-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 7vw, 6rem);
+    font-weight: 300; font-style: italic;
+    margin-bottom: 1.5rem; position: relative;
+  }
+  .contact-sub {
+    font-size: 0.85rem; color: var(--muted); margin-bottom: 3rem;
+    letter-spacing: 0.05em;
+  }
+  .contact-links { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+  .contact-link {
+    font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--off-white); text-decoration: none;
+    border: 0.5px solid var(--border);
+    padding: 0.8rem 2rem; border-radius: 99px;
+    transition: border-color 0.3s, color 0.3s;
+  }
+  .contact-link:hover { border-color: var(--accent); color: var(--accent); }
+  .contact-link.primary {
+    background: var(--accent); color: var(--black);
+    border-color: var(--accent);
+  }
+  .contact-link.primary:hover { opacity: 0.85; color: var(--black); }
+
+  /* FOOTER */
+  footer {
+    padding: 2rem 4rem;
+    border-top: 0.5px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.9rem; letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .footer-copy { font-size: 0.7rem; color: rgba(136,136,136,0.5); letter-spacing: 0.08em; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero-eyebrow { animation: fadeUp 0.8s ease both; }
+  .hero-title { animation: fadeUp 0.8s 0.1s ease both; }
+  .hero-sub { animation: fadeUp 0.8s 0.2s ease both; }
+  .hero-pills { animation: fadeUp 0.8s 0.3s ease both; }
+  .hero-cta { animation: fadeUp 0.8s 0.4s ease both; }
+  .hero-oval { animation: fadeUp 1s 0.2s ease both; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 1.25rem 2rem; }
+    .nav-links { gap: 1.5rem; }
+    .hero { grid-template-columns: 1fr; padding: 6rem 2rem 3rem; gap: 2rem; }
+    .hero-image-wrap { order: -1; }
+    .hero-oval { width: 280px; height: 360px; }
+    section { padding: 4rem 2rem; }
+    .divider { padding: 0 2rem; }
+    .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+    .events-grid { grid-template-columns: 1fr; }
+    .skills-grid { grid-template-columns: 1fr 1fr; }
+    .athlete-section { grid-template-columns: 1fr; gap: 3rem; }
+    footer { padding: 1.5rem 2rem; flex-direction: column; gap: 0.5rem; text-align: center; }
+    .contact-section { padding: 5rem 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">TAN JIA WEI</a>
+  <ul class="nav-links">
+    <li><a href="#events">Work</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#athlete">Athlete</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-text">
+    <p class="hero-eyebrow">Event Management Portfolio</p>
+    <h1 class="hero-title">Bringing<br><em>Events</em><br>to Life</h1>
+    <p class="hero-sub">Student at Republic Polytechnic &amp; National Team Taekwondo Athlete — creating meaningful experiences through disciplined execution and creative vision.</p>
+    <div class="hero-pills">
+      <span class="pill">Event Planning</span>
+      <span class="pill">Republic Polytechnic</span>
+      <span class="pill">Singapore</span>
+    </div>
+    <a href="#events" class="hero-cta">View My Work ↓</a>
+  </div>
+  <div class="hero-image-wrap">
+    <div class="hero-oval">
+      <!-- REPLACE src with your actual photo URL -->
+      <img src="https://i.imgur.com/placeholder.jpg" alt="Tan Jia Wei at Singapore Olympic Foundation" onerror="this.style.display='none'; this.parentElement.style.background='#1a1a1a';">
+      <div class="hero-oval-label">Singapore Olympic Foundation</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider">
+  <div class="divider-line"></div>
+  <span class="divider-text">Event Management · Republic Polytechnic · Singapore</span>
+  <div class="divider-line"></div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <p class="section-label">About Me</p>
+  <div class="about-grid">
+    <div>
+      <h2 class="section-title">The person<br>behind the <em>events</em></h2>
+      <div class="about-body">
+        <p>I'm Tan Jia Wei — an Event Management student at Republic Polytechnic with a passion for crafting experiences that leave a lasting impression. From concept to curtain call, I handle every detail with the same focus I bring to the mat.</p>
+        <p>As a National Team Taekwondo athlete, I've learned that success is built on preparation, adaptability, and the ability to perform under pressure — skills that translate directly into producing seamless, memorable events.</p>
+        <p>I believe great events don't just happen. They're the result of meticulous planning, creative thinking, and a team that truly cares.</p>
+      </div>
+    </div>
+    <div class="about-stats">
+      <div class="stat-card">
+        <div class="stat-number">3+</div>
+        <div class="stat-label">Years in Event Planning</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">10+</div>
+        <div class="stat-label">Events Organised</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">SG</div>
+        <div class="stat-label">National Taekwondo Athlete</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">RP</div>
+        <div class="stat-label">Republic Polytechnic, Diploma in Event Management</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EVENTS -->
+<section id="events" style="background: #080808;">
+  <p class="section-label">Featured Work</p>
+  <h2 class="section-title">Events I've <em>shaped</em></h2>
+  <div class="events-grid">
+
+    <div class="event-card">
+      <div class="event-img">
+        <!-- REPLACE with actual event photo -->
+        <div class="event-img-placeholder">01</div>
+        <span class="event-img-note">Add your photo here</span>
+      </div>
+      <div class="event-body">
+        <p class="event-tag">Corporate · 2024</p>
+        <h3 class="event-name">Event Name Here</h3>
+        <p class="event-desc">Brief description of the event — what it was, your role, and what made it special. 2–3 sentences is plenty.</p>
+        <div class="event-meta">
+          <div class="event-meta-item"><span>Your Role</span>Role Title</div>
+          <div class="event-meta-item"><span>100+</span>Attendees</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="event-card">
+      <div class="event-img">
+        <div class="event-img-placeholder">02</div>
+        <span class="event-img-note">Add your photo here</span>
+      </div>
+      <div class="event-body">
+        <p class="event-tag">Sports · 2024</p>
+        <h3 class="event-name">Event Name Here</h3>
+        <p class="event-desc">Brief description of the event — what it was, your role, and what made it special. 2–3 sentences is plenty.</p>
+        <div class="event-meta">
+          <div class="event-meta-item"><span>Your Role</span>Role Title</div>
+          <div class="event-meta-item"><span>200+</span>Attendees</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="event-card">
+      <div class="event-img">
+        <div class="event-img-placeholder">03</div>
+        <span class="event-img-note">Add your photo here</span>
+      </div>
+      <div class="event-body">
+        <p class="event-tag">Community · 2023</p>
+        <h3 class="event-name">Event Name Here</h3>
+        <p class="event-desc">Brief description of the event — what it was, your role, and what made it special. 2–3 sentences is plenty.</p>
+        <div class="event-meta">
+          <div class="event-meta-item"><span>Your Role</span>Role Title</div>
+          <div class="event-meta-item"><span>50+</span>Attendees</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section class="skills-section">
+  <p class="section-label">What I Do</p>
+  <h2 class="section-title">My <em>expertise</em></h2>
+  <div class="skills-grid">
+    <div class="skill-item">
+      <div class="skill-icon">◈</div>
+      <h3 class="skill-name">Event Planning</h3>
+      <p class="skill-desc">End-to-end event conceptualisation, budgeting, timeline management, and vendor coordination.</p>
+    </div>
+    <div class="skill-item">
+      <div class="skill-icon">◎</div>
+      <h3 class="skill-name">Logistics</h3>
+      <p class="skill-desc">Venue sourcing, equipment setup, run-of-show planning, and on-ground crew management.</p>
+    </div>
+    <div class="skill-item">
+      <div class="skill-icon">◇</div>
+      <h3 class="skill-name">Creative Direction</h3>
+      <p class="skill-desc">Theme development, visual identity, décor, and creating atmospheres that match the client's vision.</p>
+    </div>
+    <div class="skill-item">
+      <div class="skill-icon">◉</div>
+      <h3 class="skill-name">Communications</h3>
+      <p class="skill-desc">Stakeholder liaison, marketing collateral, social media content, and post-event reporting.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ATHLETE -->
+<section id="athlete">
+  <p class="section-label">The Athlete Edge</p>
+  <div class="athlete-section">
+    <div>
+      <blockquote class="athlete-quote">"Discipline on the mat translates to discipline behind every event."</blockquote>
+      <p class="athlete-body">Representing Singapore as a National Taekwondo Athlete has shaped who I am as an event professional. Years of training have instilled values that are impossible to teach in a classroom — composure under pressure, relentless preparation, and the ability to adapt when things don't go to plan.</p>
+      <p class="athlete-body" style="margin-top: 1rem;">These aren't just athlete traits. They're exactly what separates good events from truly exceptional ones.</p>
+      <div class="athlete-tags">
+        <span class="athlete-tag">National Team Athlete</span>
+        <span class="athlete-tag">Discipline</span>
+        <span class="athlete-tag">Resilience</span>
+        <span class="athlete-tag">Teamwork</span>
+      </div>
+    </div>
+    <div class="athlete-visual">
+      <div class="athlete-box">
+        <div class="athlete-box-num">SG</div>
+        <div class="athlete-box-label">National Representative</div>
+      </div>
+      <div class="athlete-box">
+        <div class="athlete-box-num">🥋</div>
+        <div class="athlete-box-label">Taekwondo</div>
+      </div>
+      <div class="athlete-box full">
+        <div class="athlete-box-num" style="font-size: 1.5rem; font-style: italic; font-family: 'Cormorant Garamond', serif;">"Train hard, perform harder"</div>
+        <div class="athlete-box-label" style="margin-top: 0.5rem;">The mindset I bring to every event</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-section" id="contact">
+  <p class="section-label" style="text-align:center;">Let's Work Together</p>
+  <h2 class="contact-title">Let's create<br>something great</h2>
+  <p class="contact-sub">Open to internships, collaborations, and event opportunities in Singapore.</p>
+  <div class="contact-links">
+    <a href="mailto:your@email.com" class="contact-link primary">Send an Email</a>
+    <a href="https://linkedin.com/in/yourprofile" target="_blank" class="contact-link">LinkedIn</a>
+    <a href="#" class="contact-link">Download CV</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-name">Tan Jia Wei — Event Management</span>
+  <span class="footer-copy">Republic Polytechnic · Singapore</span>
+</footer>
+
+</body>
+</html>
